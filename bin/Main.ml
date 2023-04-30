@@ -16,9 +16,13 @@ let render_full_screen ~border ~game =
 (* render_game_board renders the actual part of the screen that contains the 
    actual tetris game*)
 let render_game_board game_board (x, y) =
+  let square = "\xe2\x96\xaa\xe2\x96\xaa" in
   match Board.get_cell_at ~x:x ~y:y ~board:game_board with
-    | Board.Empty -> void 2 0
-    | _ -> string (fg magenta ++ bg magenta) "\xe2\x96\xaa\xe2\x96\xaa"
+    | Board.Empty   -> void 2 0
+    | Board.Green   -> string (fg green ++ bg green) square
+    | Board.Blue    -> string (fg blue ++ bg blue) square
+    | Board.Yellow  -> string (fg yellow ++ bg yellow) square
+    | Board.Red     -> string (fg red ++ bg red) square
 
 (* render_border renders the physical border around the game*)
 let render_border (_, _) = string (fg (gray 10)) ("<>")
@@ -27,6 +31,7 @@ let render_border (_, _) = string (fg (gray 10)) ("<>")
 let () =
   let game_state = GameState.init_state ~height:20 ~width:10 in
   let game_state = GameState.timestep ~game_state:game_state in
+  let game_state = GameState.rotate_player ~game_state:game_state in
 
   output_image (
     render_full_screen 

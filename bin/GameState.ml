@@ -8,8 +8,8 @@ type movementDirection = Left | Right | Down
 
 let get_random_piece () =
   let piece_generators = Array.of_list [
-    (fun () -> Piece.create_piece ([| [|(0, 0); (0, 1)|]; [|(0, 0); (0, 1)|] |]) Piece.Green);
-    (fun () -> Piece.create_piece ([| [|(0, 0); (0, 1)|]; [|(0, 0); (0, 1)|] |]) Piece.Blue)
+    (fun () -> Piece.create_piece ([| [|(0, 0); (0, 1)|]; [|(0, 0); (1, 0)|] |]) Piece.Blue);
+    (fun () -> Piece.create_piece ([| [|(0, 0); (0, 1)|]; [|(0, 0); (1, 0)|] |]) Piece.Green)
   ] in
 
   let generator = piece_generators.(Random.int (Array.length piece_generators)) 
@@ -44,6 +44,15 @@ let move_player ~direction ~game_state =
     Some { current_piece = game_state.current_piece; current_board = game_state.current_board; current_player_pos = new_position }
   else
     None
+
+
+let rotate_player ~game_state = 
+  {
+    current_piece = Piece.rotate_piece game_state.current_piece;
+    current_board = game_state.current_board;
+    current_player_pos = game_state.current_player_pos;
+  }
+
 
 (* board_with_player returns the game board for the game state with the current player rendered *)
 let board_with_player ~game_state = 
