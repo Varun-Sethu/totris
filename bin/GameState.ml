@@ -7,9 +7,12 @@ type gameState = {
 type movementDirection = Left | Right | Down
 
 let get_random_piece () =
+  Random.self_init ();
   let piece_generators = Array.of_list [
-    (fun () -> Piece.create_piece ([| [|(0, 0); (0, 1)|]; [|(0, 0); (1, 0)|] |]) Piece.Blue);
-    (fun () -> Piece.create_piece ([| [|(0, 0); (0, 1)|]; [|(0, 0); (1, 0)|] |]) Piece.Green)
+    (fun () -> Piece.create_piece ([| [|(0, 0); (0, 1); (0, 2); (0, 3) |] |]) Piece.Blue); (* flat piece *)
+    (fun () -> Piece.create_piece ([| [|(0, 0); (1, 0); (1, 1); (1, 2) |] |]) Piece.Yellow); (* l piece *)
+    (fun () -> Piece.create_piece ([| [|(0, 0); (0, 1); (1, 0); (1, 1) |] |]) Piece.Green); (* square piece *)
+    (fun () -> Piece.create_piece ([| [|(1, 0); (1, 1); (0, 1); (2, 1) |]; [|(1, 0); (1, 1); (1, 2); (2, 1) |] |]) Piece.Red) (* weird t piece *)
   ] in
 
   let generator = piece_generators.(Random.int (Array.length piece_generators)) 
