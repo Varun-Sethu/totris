@@ -9,21 +9,28 @@ let render_full_screen ~border ~game =
   let draw_screen x y =
     match (x, y) with
       | (x, y) when x = 0 || y = 0 || x = width - 1 || y = height - 1 -> border (x, y) 
-      | _ -> game (x, y)
+      | _ -> game (x - 1, y - 1)
   in
     tabulate width height draw_screen
 
 (* render_game_board renders the actual part of the screen that contains the 
    actual tetris game*)
-let render_game_board (_, _) = string (fg magenta ++ bg magenta) "\xe2\x96\xaa\xe2\x96\xaa"
+let render_game_board game_board (x, y) =
+  match Board.get_cell_at ~x:x ~y:y ~board:game_board with
+    | Board.Empty -> void 2 0
+    | _ -> string (fg magenta ++ bg magenta) "\xe2\x96\xaa\xe2\x96\xaa"
 
 (* render_border renders the physical border around the game*)
 let render_border (_, _) = string (fg (gray 10)) ("<>")
 
-let x = Board.empty_board ~height:30 ~width:20
 
+let () =
+  let game_state = GameState.init_state ~height:20 ~width:10 in
+  let game_state = GameState.timestep ~game_state:game_state in
 
-let () = 
-  output_image (render_full_screen ~border:render_border ~game:render_game_board);
-  Array.iter (fun _ -> ()) x;
+  output_image (
+    render_full_screen 
+      ~border:render_border 
+      ~game:(render_game_board (GameState.board_with_player ~game_state:game_state)));
+
   print_string "\n"
