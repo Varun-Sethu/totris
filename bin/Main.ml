@@ -29,13 +29,22 @@ let render_border (_, _) = string (fg (gray 10)) ("<>")
 
 
 let () =
-  let game_state = GameState.init_state ~height:20 ~width:10 in
-  let game_state = GameState.timestep ~game_state:game_state in
-  let game_state = GameState.rotate_player ~game_state:game_state in
+  let t = Term.create () in
+  let game_state = ref (GameState.init_state ~height:20 ~width:10) in
+  let render_screen () =
+    Term.image t (
+      render_full_screen 
+        ~border:render_border 
+        ~game:(render_game_board (GameState.board_with_player ~game_state:!game_state))) in
 
-  output_image (
-    render_full_screen 
-      ~border:render_border 
-      ~game:(render_game_board (GameState.board_with_player ~game_state:game_state)));
+  let rec game_loop () = 
+    match Term.event t with
+      | `Key (`Enter,_)        -> ()
+      | _                      ->
+        game_state := (GameState.timestep ~game_state:!game_state);
+        Term.refresh t;
+        render_screen ();
+        game_loop (); in
 
+  game_loop ();
   print_string "\n"

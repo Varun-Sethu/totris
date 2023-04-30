@@ -41,17 +41,13 @@ let move_player ~direction ~game_state =
       | (Down,  (x, y)) -> (x, y + 1) in
   
   if Board.piece_can_be_placed ~piece:game_state.current_piece ~position:new_position ~board:game_state.current_board then
-    Some { current_piece = game_state.current_piece; current_board = game_state.current_board; current_player_pos = new_position }
+    Some { game_state with current_player_pos = new_position }
   else
     None
 
 
-let rotate_player ~game_state = 
-  {
-    current_piece = Piece.rotate_piece game_state.current_piece;
-    current_board = game_state.current_board;
-    current_player_pos = game_state.current_player_pos;
-  }
+let rotate_player ~game_state =
+  { game_state with current_piece = Piece.rotate_piece game_state.current_piece }
 
 
 (* board_with_player returns the game board for the game state with the current player rendered *)
