@@ -1,0 +1,4 @@
+(executable
+ (public_name totris)
+ (name main)
+ (libraries base totris notty notty.unix))
