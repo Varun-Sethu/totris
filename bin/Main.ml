@@ -26,24 +26,35 @@ let render_game_board game_board (x, y) =
 
 (* render_border renders the physical border around the game*)
 let render_border (_, _) = string (fg (gray 10)) ("<>")
-
-
+  
+let (>>) f g = fun x -> g (f x)
 let () =
   let t = Term.create () in
   let game_state = ref (GameState.init_state ~height:20 ~width:10) in
   let render_screen () =
-    Term.image t (
-      Term.refresh t;
+    let new_screen = 
       render_full_screen 
         ~border:render_border 
-        ~game:(render_game_board (GameState.board_with_player ~game_state:!game_state))) in
+        ~game:(render_game_board (GameState.board_with_player ~game_state:!game_state)) in
 
-  let rec game_loop () =
+    Term.refresh t;
+    Term.image t new_screen in
+
+  (* core game loop logic *)
+  let rec update_state ~transformer =
+    let new_state = match transformer !game_state with
+                      | Some new_state -> new_state
+                      | None -> !game_state in
+    game_state := new_state;
+    render_screen ();
+    game_loop ()
+
+  and game_loop () =
     match Term.event t with
-      | `Key (`Arrow `Right, _) -> game_state := (GameState.move_player ~direction:GameState.Right ~game_state:!game_state) |> Option.get; render_screen (); game_loop ();
-      | `Key (`Arrow `Left, _)  -> game_state := (GameState.move_player ~direction:GameState.Left ~game_state:!game_state) |> Option.get; render_screen (); game_loop ();
-      | `Key (`Arrow `Down, _)  -> game_state := (GameState.timestep ~game_state:!game_state); render_screen (); game_loop ();
-      | `Key (`Arrow `Up, _)    -> game_state := (GameState.rotate_player ~game_state:!game_state); render_screen (); game_loop ();
-      | _                       -> (); in
-
+      | `Key (`Arrow `Right, _) -> update_state ~transformer:(GameState.move_player ~direction:GameState.Right)
+      | `Key (`Arrow `Left, _)  -> update_state ~transformer:(GameState.move_player ~direction:GameState.Left)
+      | `Key (`Arrow `Down, _)  -> update_state ~transformer:(GameState.timestep >> Option.some);
+      | `Key (`Arrow `Up, _)    -> update_state ~transformer:(GameState.rotate_player);
+      | _                       -> ();
+  in
   game_loop ();
