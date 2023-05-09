@@ -39,7 +39,7 @@ let reset_state ~game_state =
   }
 
 
-let move_player ~direction game_state = 
+let move_player ~direction ~game_state = 
   let new_position = 
     match (direction, game_state.current_player_pos) with
       | (Left,  (x, y)) -> (x - 1, y)
@@ -52,7 +52,7 @@ let move_player ~direction game_state =
     None
 
 
-let rotate_player game_state =
+let rotate_player ~game_state =
   let rotated_piece = Piece.rotate_piece game_state.current_piece in
   if Board.piece_can_be_placed ~piece:rotated_piece ~position:game_state.current_player_pos ~board:game_state.current_board then
     Some { game_state with current_piece = Piece.rotate_piece game_state.current_piece }
@@ -67,7 +67,7 @@ let board_with_player ~game_state =
 
 
 (* ticks the game by one timestep *)
-let timestep game_state =
-  match move_player ~direction:Down game_state with
+let timestep ~game_state =
+  match move_player ~direction:Down ~game_state with
     | Some (game_state) -> game_state
     | None -> reset_state ~game_state:game_state
