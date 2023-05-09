@@ -62,10 +62,10 @@ let get_board ~game_state =
 
 let timestep ~game_state =
   match move_player ~direction:Down ~game_state with
-    | Some (game_state) -> Some game_state
+    | Some game_state -> Some game_state
     | None -> reset_state ~game_state
 
 let rec drop_current_piece ~game_state = 
   match move_player ~game_state ~direction:Down with
     | Some new_game_state -> drop_current_piece ~game_state:new_game_state
-    | None -> timestep ~game_state
+    | None -> timestep ~game_state (* drop the piece (prevents weird buggy screen issues) *)
