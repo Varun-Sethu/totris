@@ -13,21 +13,23 @@ let render_full_screen ~border ~game =
 
 (* render_game_board renders the actual part of the screen that contains the 
    actual tetris game*)
-let render_game_board game_board (x, y) =
+let render_game_board ~board (x, y) =
  let open Notty.A in
  let open Notty.I in
  let square = "\xe2\x96\xaa\xe2\x96\xaa" in
- match Board.get_cell_at ~x:x ~y:y ~board:game_board with
+ match Board.get_cell_at ~x:x ~y:y ~board:board with
    | Board.Empty   -> void 2 0
-   | Board.Filled (Colour.Green)   -> string (fg green ++ bg green) square
-   | Board.Filled (Colour.Blue)    -> string (fg blue ++ bg blue) square
-   | Board.Filled (Colour.Yellow)  -> string (fg yellow ++ bg yellow) square
-   | Board.Filled (Colour.Red)     -> string (fg red ++ bg red) square
+   | Board.Filled (Colour.Green)  -> string (fg green ++ bg green) square
+   | Board.Filled (Colour.Blue)   -> string (fg blue ++ bg blue) square
+   | Board.Filled (Colour.Yellow) -> string (fg yellow ++ bg yellow) square
+   | Board.Filled (Colour.Red)    -> string (fg red ++ bg red) square
 
 (* render_border renders the physical border around the game*)
-let render_border (_, _) = Notty.I.string Notty.A.(fg (gray 10)) ("<>")
+let render_border (_, _) = I.string A.(fg (gray 10)) ("<>")
 
 let render_screen_with_board ~board =
   render_full_screen 
     ~border:render_border 
-    ~game:(render_game_board board)
+    ~game:(render_game_board ~board)
+
+let render_game_over = I.string A.(fg (magenta) ++ bg (black)) ("Game Over!")

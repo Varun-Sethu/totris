@@ -2,6 +2,6 @@
  (public_name totris)
  (name main)
  (libraries 
-   base totris 
+   base 
    notty notty.unix notty.lwt
    lwt.unix))

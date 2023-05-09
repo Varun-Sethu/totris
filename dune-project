@@ -5,22 +5,16 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github Varun-Sethu/totris))
 
-(authors "Author Name")
+(authors "Varun Sethu")
 
-(maintainers "Maintainer Name")
-
-(license LICENSE)
-
-(documentation https://url/to/documentation)
+(maintainers "Varun Sethu")
 
 (package
  (name totris)
- (synopsis "A short synopsis")
- (description "A longer description")
+ (synopsis "A very shoddy tetris clone :)")
+ (description "A very shoddy tetris clone :)")
  (depends ocaml dune)
  (tags
-  (topics "to describe" your project)))
-
-; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
+  (tetris)))

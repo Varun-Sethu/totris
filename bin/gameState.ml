@@ -28,13 +28,14 @@ let reset_state ~game_state =
   let (width, _) = Board.dimensions ~board:game_state.current_board in
   let new_piece = get_random_piece () in
   let new_board = Board.place_piece ~piece:game_state.current_piece ~position:game_state.current_player_pos ~board:game_state.current_board 
-                    |> Option.get
-                    |> fun board -> Board.clear_full_rows ~board in
-  {
+                    |> Option.map (fun board -> (Board.clear_full_rows ~board)) in
+
+  (* todo: update to use ppx monadic do blocks *)
+  Option.map (fun new_board -> {
     current_piece = new_piece;
     current_board = new_board;
     current_player_pos = (width / 2, 0)
-  }
+  }) new_board
 
 let move_player ~game_state ~direction = 
   let new_position = 
@@ -53,16 +54,18 @@ let rotate_player ~game_state =
   else
     Some { game_state with current_piece = Piece.rotate ~piece:game_state.current_piece }
 
-(* board_with_player returns the game board for the game state with the current player rendered *)
 let get_board ~game_state =
   Board.place_player 
     ~board:game_state.current_board 
     ~player_piece:game_state.current_piece 
     ~position:game_state.current_player_pos
-  |> Option.get
 
-(* ticks the game by one timestep *)
 let timestep ~game_state =
   match move_player ~direction:Down ~game_state with
-    | Some (game_state) -> game_state
-    | None -> reset_state ~game_state:game_state
+    | Some (game_state) -> Some game_state
+    | None -> reset_state ~game_state
+
+let rec drop_current_piece ~game_state = 
+  match move_player ~game_state ~direction:Down with
+    | Some new_game_state -> drop_current_piece ~game_state:new_game_state
+    | None -> timestep ~game_state
