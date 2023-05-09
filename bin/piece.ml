@@ -1,17 +1,16 @@
-type piece_colour = Red | Green | Blue | Yellow
 type t = {
   block_positions: (int * int) array;
-  colour: piece_colour;
+  colour: Colour.t;
 }
 
-let create_piece configuration colour = {
+let create_piece ~configuration ~colour = {
   block_positions = configuration;
   colour = colour;
 }
 
-(* apply rotation matrix to each tuple *)
-(* the first coordinate  is treated as the origin of the rotation *)
-let rotate_piece piece =
+(* apply 90 degree rotation matrix to each tuple *)
+(* the first coordinate is treated as the origin of the rotation *)
+let rotate ~piece =
   let (o_x, o_y) = piece.block_positions.(0) in
   let rotated_pieces = 
     piece.block_positions  
@@ -21,6 +20,8 @@ let rotate_piece piece =
   { piece with block_positions = rotated_pieces }
 
 
-let get_abs_coords ~origin piece =
+let get_abs_coords ~piece ~origin =
   let (origin_x, origin_y) = origin in
   Array.map (fun (x, y) -> (origin_x + x, origin_y + y)) piece.block_positions
+
+let get_colour ~piece = piece.colour
