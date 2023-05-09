@@ -13,7 +13,7 @@ let () =
   let t = Term.create () in
   let game_state = ref (GameState.init_state ~height:20 ~width:10) in
 
-  (* if the board is none (cant be rendered anymore) then stop the game *)
+  (* core game loop logic, ebic spaghetti of mutually recursive functions :D *)
   let rec rerender_screen ~block_timer ~gui_event =
     let new_screen = match GameState.get_board ~game_state:!game_state with
       | None -> Renderer.render_game_over
@@ -23,7 +23,6 @@ let () =
       >>= fun () -> Term.image t new_screen
       >>= fun () -> game_loop ~block_timer ~gui_event
 
-  (* core game loop logic *)
   and update_state ~transformer ~block_timer ~gui_event =
     let new_state = match transformer ~game_state:!game_state with
                       | Some new_state -> new_state
@@ -32,7 +31,7 @@ let () =
     rerender_screen ~block_timer ~gui_event
 
   and game_loop ~block_timer ~gui_event =
-    ((block_timer <?> gui_event) >>= 
+    (block_timer <?> gui_event) >>= 
       function
         | `Key (`Arrow `Right, _) -> update_state ~transformer:(GameState.move_player ~direction:GameState.Right) ~block_timer ~gui_event:(gui_event_listener t)
         | `Key (`Arrow `Left, _)  -> update_state ~transformer:(GameState.move_player ~direction:GameState.Left) ~block_timer ~gui_event:(gui_event_listener t)
@@ -40,6 +39,6 @@ let () =
         | `Key (`Arrow `Up, _)    -> update_state ~transformer:(GameState.rotate_player) ~block_timer ~gui_event:(gui_event_listener t)
         | `Key (`ASCII ' ', _)    -> update_state ~transformer:(GameState.drop_current_piece) ~block_timer ~gui_event:(gui_event_listener t)
         | `Timer                  -> update_state ~transformer:(GameState.timestep) ~block_timer:(block_timer_listener ()) ~gui_event
-        | _                       -> Lwt.return_unit) in
+        | _                       -> Lwt.return_unit in
 
   Lwt_main.run @@ rerender_screen ~block_timer:(block_timer_listener ()) ~gui_event:(gui_event_listener t)
